@@ -1,7 +1,7 @@
 
 # `hakuna`
 
-[![CI](https://github.com/sgammon/hakuna/actions/workflows/on.push.yml/badge.svg)](https://github.com/sgammon/hakuna/actions/workflows/on.push.yml)
+[![CI](https://github.com/elide-dev/hakuna/actions/workflows/on.push.yml/badge.svg)](https://github.com/elide-dev/hakuna/actions/workflows/on.push.yml)
 
 > [!WARNING]
 > This library has not been published to NPM yet.
