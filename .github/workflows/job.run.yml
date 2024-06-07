@@ -1,0 +1,90 @@
+#
+# Copyright (c) 2024 Elide Technologies, Inc.
+#
+# Licensed under the MIT license (the "License"); you may not use this file except in compliance
+# with the License. You may obtain a copy of the License at
+#
+# https://opensource.org/license/mit/
+#
+# Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+# an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations under the License.
+#
+
+name: Run
+
+"on":
+  workflow_dispatch:
+    inputs:
+      runner:
+        description: "Runner"
+        type: string
+        default: ubuntu-latest
+  workflow_call:
+    inputs:
+      runner:
+        description: "Runner"
+        type: string
+        default: ubuntu-latest
+    secrets:
+      BENCHER_API_TOKEN:
+        required: true
+        description: "Bencher API Token"
+
+env:
+  BENCHER_API_TOKEN: ${{ secrets.BENCHER_API_TOKEN }}
+
+permissions:
+  contents: read
+
+jobs:
+  ##
+  ## Job: Build
+  ##
+  build:
+    name: "Bench (${{ inputs.runner }})"
+    runs-on: ${{ inputs.runner }}
+
+    permissions:
+      actions: "read"
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: "Setup: Harden Runner"
+        uses: step-security/harden-runner@f086349bfa2bd1361f7909c78558e816508cdc10 # v2.8.0
+        with:
+          disable-sudo: true
+          egress-policy: audit
+          # allowed-endpoints: []
+      - name: "Setup: Checkout"
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
+        with:
+          submodules: false
+          persist-credentials: false
+      - name: "Setup: Deno"
+        uses: denoland/setup-deno@041b854f97b325bd60e53e9dc2de9cb9f9ac0cba # v1.1.4
+        with:
+          deno-version: canary
+      - name: "Setup: Node"
+        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8  # v4.0.2
+        with:
+          node-version: latest
+      - name: "Setup: Bun"
+        uses: oven-sh/setup-bun@f4d14e03ff726c06358e5557344e1da148b56cf7 # v1.2.2
+        with:
+          bun-version: latest
+      - name: "Setup: Elide"
+        uses: elide-dev/setup-elide@5f11f5153cf4318b7fb3fcb85dddd5515e61fa84 # v1.0.1
+        with:
+          version: latest
+      - name: "Setup: Bencher"
+        uses: bencherdev/bencher@956af91d4e4053dd16b7f21ad98e8acdae63aadf # v0.4.12
+      - name: "Setup: Install Dependencies"
+        run: bun install --frozen && apt-get update && apt-get install -y libc6-dev zlib1g-dev
+      - name: "Build: Standalone"
+        run: bun run build:bin
+      - name: "Build: Run Benchmarks"
+        run: bun run report:bencher
