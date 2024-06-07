@@ -38,7 +38,9 @@
     "run:bun": "bun run ./src/main.ts",
     "run:node": "bun run build && node ./dist/main.js",
     "run:deno": "deno run ./src/main-deno.ts",
-    "run:elide": "bun run build && elide ./dist/main-elide.mjs"
+    "run:elide": "bun run build && elide ./dist/main-elide.mjs",
+    "report:bencher": "bencher run --project hakuna --testbed local --file bench-results.json --adapter json ./bin/hakuna ./tests/smoke/example.json",
+    "build:all": "bun run build && bun run build:bin && bun run report:bencher"
   },
   "peerDependencies": {
     "mitata": "git+https://github.com/elide-dev/mitata.git#cbea7911fb517962667d7aa71f934d885620d68b"
