@@ -29,8 +29,23 @@ export type RuntimeInfo = RuntimeConfig & {
   resolved: string;
 }
 
+export type CpuInfo = {
+  model: string;
+  speed: number;
+}
+
+export type SystemInfo = {
+  os: string;
+  arch: string;
+  cpu: string;
+  cpuCount: number;
+  cpus: CpuInfo[],
+  mem: number;
+}
+
 export type SingleBenchmarkResults = {
   runtime: RuntimeInfo,
+  system: SystemInfo,
   suite: InterpretedSuite,
   totalMs: number,
   bench?: any,

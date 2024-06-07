@@ -15,6 +15,7 @@ import { execFile } from "node:child_process";
 import { sep, isAbsolute, join, resolve } from "node:path";
 import { tmpdir } from "node:os";
 import which from "which";
+import { getSystemInfo } from "./util";
 
 /**
  * Run a single benchmark against the provided runtime.
@@ -72,6 +73,9 @@ export async function runBench(
   const entryPath = `${tmp}/entry.mjs`;
   writeFileSync(entryPath, script, { encoding: 'utf8' });
 
+  // build info about the host system
+  const system = getSystemInfo();
+
   // compute local path to node modules, then symlink the tmpdir directory to it at the same name
   const nodeModules = join(process.cwd(), 'node_modules');
   const tmpNodeModules = `${tmp}/node_modules`;
@@ -121,6 +125,7 @@ export async function runBench(
           resolve({
             runtime,
             suite,
+            system,
             error: `Benchmark failed with exit code ${child.exitCode}`,
             totalMs: +(new Date()) - start,
           })
@@ -130,6 +135,7 @@ export async function runBench(
             resolve({
               runtime,
               suite,
+              system,
               error: `No benchmark output received`,
               totalMs: +(new Date()) - start,
             });
@@ -141,6 +147,7 @@ export async function runBench(
               runtime,
               suite,
               bench,
+              system,
               totalMs: +(new Date()) - start,
             });
           } catch (err) {
