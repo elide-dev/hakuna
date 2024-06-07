@@ -30,9 +30,9 @@ function generateNameForBench(benchmark: SingleBenchmarkResults, result: MicroBe
 
 function buildMetric(benchmark: MicroBenchmarkRunResult): BencherMetrics {
   return {
-    ...createMetric(benchmark.stats.p99 || benchmark.stats.avg),
-    lower_value: !!benchmark.stats.min ? benchmark.stats.min : undefined,
-    upper_value: !!benchmark.stats.max && benchmark.stats.max > benchmark.stats.min ? benchmark.stats.max : undefined,
+    ...createMetric(benchmark.stats.avg),
+    lower_value: benchmark.stats.min || benchmark.stats.p75,
+    upper_value: benchmark.stats.max || benchmark.stats.p999,
   }
 }
 
@@ -68,8 +68,8 @@ export default class BencherFormatter extends BaseFormatter<BencherMetricFormat>
     const benchmarks = (data as MergedMicroBenchmarkResult).all;
 
     benchmarks.filter((suite) => !suite.error).map((benchResult) => {
-      const stanza = createStanza();
       benchResult.bench.benchmarks.map((benchEntry) => {
+        const stanza = createStanza();
         addMetric(stanza, BencherMetric.LATENCY, buildMetric(benchEntry));
         addStanza(shape, generateNameForBench(benchResult, benchEntry), stanza as BencherStanza);
       })
